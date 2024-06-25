@@ -22,10 +22,16 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Extract metadata for the Docker image
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.DEV_IMAGE}}
+
     - name: Build dev image
-      run: docker build -t $env.DEV_IMAGE -f Dockerfile.dev .
+      run: docker build -t ${{ steps.meta.outputs.tags }} -f Dockerfile.dev .
 
     # By default `npm run test` runs the watcher with interactive CLI.
     # However, we can force it to run tests once and finish the process by setting the CI environment variable.
     - name: Run tests
-      run: docker run -e CI=true -t $env.DEV_IMAGE npm run test -- --coverage
+      run: docker run -e CI=true ${{ steps.meta.outputs.tags }} npm run test -- --coverage
