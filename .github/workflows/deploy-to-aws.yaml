@@ -10,7 +10,7 @@ env:
   DEV_IMAGE: nirgluzman/dev:latest
   PROD_IMAGE: nirgluzman/docker-react:latest
   AWS_REGION: us-east-1
-  AWS_ROLE: ${{ secretes.AWS_ROLE }}
+  AWS_ROLE: ${{ secrets.AWS_ROLE }}
 
 # Permission can be added at job level or workflow level
 permissions:
