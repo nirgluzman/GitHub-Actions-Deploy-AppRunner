@@ -18,3 +18,17 @@ https://stackoverflow.com/questions/41485217/mount-current-directory-as-a-volume
 docker build -f Dockerfile.dev -t react-app-image .
 docker run -p 3000:3000 -v /home/node/app/node_modules -v $(pwd):/home/node/app --name react-app-container react-app-image
 ```
+
+## docker attach
+
+- Attach local standard input, output, and error streams to the PRIMARY PROCESS (PID=1) running in the container.
+
+- This lets you view its output or control it interactively, as though the commands were running directly in your terminal.
+
+## docker exec
+
+- executes a new command in a running container.
+
+```bash
+docker exec -it <container-name> sh
+```
