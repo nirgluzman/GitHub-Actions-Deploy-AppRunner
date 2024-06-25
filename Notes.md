@@ -1,3 +1,8 @@
+## Overview
+- Code base - React app (default created with `create-react-app`).
+- docker-compose for start dev server and run tests.
+- Production - multi-stage Dockerfile - build React artifacts and start Nginx server.
+
 ## GitHub repo
 
 https://github.com/nirgluzman/GitHub-Actions-React-CI.git
@@ -9,7 +14,6 @@ https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/learn/lect
 - When using WSL to run Docker Desktop on Windows, the project should have been created on the Linux file system and all docker commands should be run within WSL as per best practices:
 
 https://docs.docker.com/desktop/windows/wsl/#best-practices
-
 
 ## Nginx
 
@@ -30,7 +34,6 @@ https://docs.docker.com/build/building/multi-stage/
 - With multi-stage builds, you use multiple `FROM` statements in your Dockerfile.
 - Each `FROM` instruction can use a different base, and each of them begins a new stage of the build.
 - You can selectively copy artifacts from one stage to another, leaving behind everything you don't want in the final image.
-
 
 ## Docker bind mounts
 
