@@ -3,6 +3,7 @@
 name: Deploy React to AWS Elastic Beanstalk
 on:
   workflow_dispatch:
+  push:
 
 env:
   DEV_IMAGE: nirgluzman/dev:latest
