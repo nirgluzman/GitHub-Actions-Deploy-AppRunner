@@ -5,8 +5,8 @@ name: Deploy React to AWS App Runner
 on:
   workflow_dispatch:
   push:
-    branches:
-    - main
+    # branches:
+    # - main
 
 env:
   AWS_REGION: us-east-1
