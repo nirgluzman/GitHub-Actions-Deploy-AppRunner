@@ -26,13 +26,13 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v4
 
-    # - name: Build dev image
-    #   run: docker build -t dev -f Dockerfile.dev .
+    - name: Build dev image
+      run: docker build -t dev -f Dockerfile.dev .
 
-    # # By default `npm run test` runs the watcher with interactive CLI.
-    # # However, we can force it to run tests once and finish the process by setting the CI environment variable.
-    # - name: Run tests
-    #   run: docker run -e CI=true dev npm run test -- --coverage
+    # By default `npm run test` runs the watcher with interactive CLI.
+    # However, we can force it to run tests once and finish the process by setting the CI environment variable.
+    - name: Run tests
+      run: docker run -e CI=true dev npm run test -- --coverage
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -67,7 +67,7 @@ jobs:
       id: deploy-apprunner
       uses: awslabs/amazon-app-runner-deploy@main
       with:
-        service: app-runner-image-deploy-service
+        service: react-template-app
         image: ${{ steps.build-image.outputs.prod_image }}
         access-role-arn: ${{ secrets.AWS_APPRUNNERROLEFORECRACCESS }}
         region: ${{ env.AWS_REGION }}
@@ -76,5 +76,5 @@ jobs:
         port: 80
         wait-for-service-stability-seconds: 1200
 
-    - name: App Runner output
-      run: echo "App runner output ${{ steps.deploy-apprunner.outputs.service-id }}"
+    - name: App Runner output service URL
+      run: echo "App runner output ${{ steps.deploy-apprunner.outputs.service-url }}"
