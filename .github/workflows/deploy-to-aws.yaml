@@ -5,8 +5,8 @@ name: Deploy React to AWS App Runner
 on:
   workflow_dispatch:
   push:
-    # branches:
-    # - main
+    branches:
+    - main
 
 env:
   AWS_REGION: us-east-1
@@ -76,5 +76,5 @@ jobs:
         port: 80
         wait-for-service-stability-seconds: 1200
 
-    - name: App Runner output service URL
-      run: echo "App runner output ${{ steps.deploy-apprunner.outputs.service-url }}"
+    - name: App Runner output - service URL
+      run: echo "App runner service URL: https://${{ steps.deploy-apprunner.outputs.service-url }}"
