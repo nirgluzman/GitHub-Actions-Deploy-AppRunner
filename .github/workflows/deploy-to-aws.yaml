@@ -34,21 +34,29 @@ jobs:
     # - name: Run tests
     #   run: docker run -e CI=true dev npm run test -- --coverage
 
-    - name: Configure aws credentials
+    - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ secrets.AWS_OIDC_ROLE}}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Login to Amazon ECR Private
+    - name: Login to ECR Private
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build, tag, and push image to Amazon ECR
+    - name: Create ECR repository if it does not exists
+      run: |
+        aws ecr describe-repositories --region $AWS_REGION --repository-name $ECR_REPOSITORY || \
+        aws ecr create-repository \
+        --repository-name $ECR_REPOSITORY \
+        --region $AWS_REGION \
+        --image-scanning-configuration scanOnPush=false \
+        --image-tag-mutability MUTABLE
+
+    - name: Build, tag, and push image to ECR
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
         docker build --file Dockerfile.prod -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
