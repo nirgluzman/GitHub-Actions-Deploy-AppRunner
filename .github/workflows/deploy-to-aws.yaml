@@ -77,4 +77,4 @@ jobs:
         wait-for-service-stability-seconds: 1200
 
     - name: App Runner output - service URL
-      run: echo "App runner service URL: https://${{ steps.deploy-apprunner.outputs.service-url }}"
+      run: echo "App runner service URL https://${{ steps.deploy-apprunner.outputs.service-url }}"
