@@ -2,6 +2,7 @@
 - Code base - React app (default created with `create-react-app`).
 - docker-compose for start dev server and run tests.
 - Production - multi-stage Dockerfile - build React artifacts and start Nginx server.
+- GitHub Actions workflow - run tests and deploy to AWS AppRunner.
 
 ## GitHub repo
 
