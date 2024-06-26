@@ -20,7 +20,7 @@ permissions:
   contents: read    # This is required for actions/checkout
 
 jobs:
-  build-and-deploy:
+  test-build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout source code
@@ -74,7 +74,9 @@ jobs:
         cpu : 1
         memory : 2
         port: 80
-        wait-for-service-stability-seconds: 1200
+        # Deprecated: wait-for-service-stability: true
+        # The new way to control service stability timeout
+        # wait-for-service-stability-seconds: 600  (Optional)
 
     - name: App Runner output - service URL
       run: echo "App runner service URL https://${{ steps.deploy-apprunner.outputs.service-url }}"
