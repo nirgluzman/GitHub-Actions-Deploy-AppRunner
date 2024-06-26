@@ -1,0 +1,80 @@
+# https://aws.amazon.com/blogs/containers/deploy-applications-in-aws-app-runner-with-github-actions/
+# https://aws.amazon.com/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/
+
+name: Deploy React to AWS App Runner
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: web-react
+
+# These permissions are needed to interact with GitHub's OIDC Token endpoint.
+# In order for this action to create the JWT, the workflow file must have the id-token: write permission.
+# https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services#updating-your-github-actions-workflow
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Build dev image
+      run: docker build -t dev -f Dockerfile.dev .
+
+    # By default `npm run test` runs the watcher with interactive CLI.
+    # However, we can force it to run tests once and finish the process by setting the CI environment variable.
+    - name: Run tests
+      run: docker run -e CI=true dev npm run test -- --coverage
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_OIDC_ROLE}}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to ECR Private
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Create ECR repository if it does not exists
+      run: |
+        aws ecr describe-repositories --region $AWS_REGION --repository-name $ECR_REPOSITORY || \
+        aws ecr create-repository \
+        --repository-name $ECR_REPOSITORY \
+        --region $AWS_REGION \
+        --image-scanning-configuration scanOnPush=false \
+        --image-tag-mutability MUTABLE
+
+    - name: Build, tag, and push image to ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build --file Dockerfile.prod -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        echo "prod_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+
+    - name: Deploy to App Runner
+      id: deploy-apprunner
+      uses: awslabs/amazon-app-runner-deploy@main
+      with:
+        service: react-template-app
+        image: ${{ steps.build-image.outputs.prod_image }}
+        access-role-arn: ${{ secrets.AWS_APPRUNNERROLEFORECRACCESS }}
+        region: ${{ env.AWS_REGION }}
+        cpu : 1
+        memory : 2
+        port: 80
+        wait-for-service-stability-seconds: 1200
+
+    - name: App Runner output - service URL
+      run: echo "App runner service URL https://${{ steps.deploy-apprunner.outputs.service-url }}"
