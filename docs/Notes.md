@@ -6,7 +6,7 @@
 
 ## GitHub repo
 
-https://github.com/nirgluzman/GitHub-Actions-React-CI.git
+https://github.com/nirgluzman/GitHub-Actions-Deploy-AppRunner.git
 
 ## WSL and Windows Users Must Read !!
 
